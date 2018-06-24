@@ -12,10 +12,13 @@ print('[core]: Reading config file...')
 try:
     with open('config.yml', 'r') as fconf:
         config = yaml.load(fconf)
-        webhook = config['webhook']
+        interval = config['phishpackets']['interval']
+        nbnsQuery = config['phishpackets']['NBNSquery']
+        llmnrQuery = config['phishpackets']['LLMNRquery']
+        targetNets = config['phishpackets']['destnets']
         sniffFilter = config['sniffingconf']['filter']
         localIp = config['sniffingconf']['localaddr']
-        targetNets = config['destnets']
+        webhook = config['webhook']
         log = config['logfile']
 except:
     print('Cannot parse the configuration file: {info}'.format(info=sys.exc_info()[0]))
@@ -78,23 +81,22 @@ print('[core]: Initializing Sniffer...')
 sniffer = Sniffer(filter=sniffFilter, webhook=webhook)
 sniffer.start()
 sleep(10)
-print('[core]: Starting sending phish packets...')
-for net in targetNets:
-    print('[asker]: sending to: {dst}'.format(dst=net))
-    queryid = random.getrandbits(16)
-    try:
-        send(IP(dst=net)/UDP(sport=137, dport="netbios_ns")/NBNSQueryRequest(SUFFIX="file server service",QUESTION_NAME="corpsoft-1", QUESTION_TYPE="NB"))
-        send(IP(dst=net)/UDP(sport=5355, dport=5355)/LLMNRQuery(id=queryid, qr=0, opcode=0, qdcount=1, qd=DNSQR(qname='shareddocs',qtype='A')))
-    except PermissionError as perr:
-        print('Cannot send packet, check you permissions: {info}'.format(info=perr))
-
-# Running non-stop, waiting for keyboard interrupt
+# Will be sending phishing packets until Ctrl-C
 try:
     while True:
-        sleep(100)
+        print('[core]: Starting sending phish packets...')
+        for net in targetNets:
+            print('[asker]: sending to: {dst}'.format(dst=net))
+            queryid = random.getrandbits(16)
+            try:
+                send(IP(dst=net)/UDP(sport=137, dport="netbios_ns")/NBNSQueryRequest(SUFFIX="file server service",QUESTION_NAME=nbnsQuery, QUESTION_TYPE="NB"))
+                send(IP(dst=net)/UDP(sport=5355, dport=5355)/LLMNRQuery(id=queryid, qr=0, opcode=0, qdcount=1, qd=DNSQR(qname=llmnrQuery,qtype='A')))
+            except PermissionError as perr:
+                print('Cannot send packet, check you permissions: {info}'.format(info=perr))
+        # Freeze for the specified interval and start all over again.
+        sleep(interval)
 except KeyboardInterrupt:
-    print("[core]: Stopping Sniffer...")
+    print("[core]: Stopping Sniffer and Asker...")
     sniffer.join(2.0)
-
     if sniffer.isAlive():
         sniffer.socket.close()

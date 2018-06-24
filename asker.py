@@ -10,19 +10,11 @@ from time import sleep
 print('[core]: Reading config file...')
 with open('config.yml', 'r') as fconf:
     config = yaml.load(fconf)
-    webhook = config['slack']['webhook']
-    for uri in webhook:
-        webhookUri = uri
+    webhook = config['webhook']
     sniffFilter = config['sniffingconf']['filter']
-    for stanza in sniffFilter:
-        sFilter = stanza
     localIp = config['sniffingconf']['localaddr']
-    targetNets = config['destnets']['cidraddr']
-    logLocation = config['logging']['relativepath']
-    for stanza in logLocation:
-        if stanza is not None:
-            log = stanza
-fconf.close()
+    targetNets = config['destnets']
+    log = config['logfile']
 
 # Initializing logging
 logging.basicConfig(format='%(asctime)s %(message)s', filename=log, level=logging.WARNING)
@@ -74,7 +66,7 @@ class Sniffer(Thread):
 
 # Main process
 print('[core]: Initializing Sniffer...')
-sniffer = Sniffer(filter=sFilter, webhook=webhookUri)
+sniffer = Sniffer(filter=sniffFilter, webhook=webhook)
 sniffer.start()
 sleep(10)
 print('[core]: Starting sending phish packets...')

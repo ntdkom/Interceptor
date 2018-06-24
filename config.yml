@@ -1,15 +1,8 @@
 destnets:
-    cidraddr:
-        - "10.0.7.4"
-        - "10.0.7.8"
-slack:
-    webhook:
-        - "https://hooks.slack.com/services/XXXXXXXXXXXXXXX"
-logging:
-    relativepath:
-        - "interceptor.log"
+    - "10.0.7.4"
+    - "10.0.7.8"
+webhook: "https://hooks.slack.com/services/XXXXXXXXXXXXXXX"
+logfile: "interceptor.log"
 sniffingconf:
-    localaddr:
-        - "10.0.7.5"
-    filter:
-        - "udp and port 137 or port 5355 and not src host 10.0.7.5"
+    localaddr: "10.0.7.5"
+    filter: "udp and port 137 or port 5355 and not src host 10.0.7.5"

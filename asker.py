@@ -1,3 +1,4 @@
+import sys
 import yaml
 import requests
 import json
@@ -8,16 +9,24 @@ from time import sleep
 
 # Reading configuration
 print('[core]: Reading config file...')
-with open('config.yml', 'r') as fconf:
-    config = yaml.load(fconf)
-    webhook = config['webhook']
-    sniffFilter = config['sniffingconf']['filter']
-    localIp = config['sniffingconf']['localaddr']
-    targetNets = config['destnets']
-    log = config['logfile']
+try:
+    with open('config.yml', 'r') as fconf:
+        config = yaml.load(fconf)
+        webhook = config['webhook']
+        sniffFilter = config['sniffingconf']['filter']
+        localIp = config['sniffingconf']['localaddr']
+        targetNets = config['destnets']
+        log = config['logfile']
+except:
+    print('Cannot parse the configuration file: {info}'.format(info=sys.exc_info()[0]))
+    raise
 
 # Initializing logging
-logging.basicConfig(format='%(asctime)s %(message)s', filename=log, level=logging.WARNING)
+try:
+    logging.basicConfig(format='%(asctime)s %(message)s', filename=log, level=logging.WARNING)
+except PermissionError as perr:
+    print('Cannot configure logging, check you permissions: {info}'.format(info=perr))
+    raise
 
 # Prepping Sniffer class
 class Sniffer(Thread):
@@ -73,8 +82,11 @@ print('[core]: Starting sending phish packets...')
 for net in targetNets:
     print('[asker]: sending to: {dst}'.format(dst=net))
     queryid = random.getrandbits(16)
-    send(IP(dst=net)/UDP(sport=137, dport="netbios_ns")/NBNSQueryRequest(SUFFIX="file server service",QUESTION_NAME="corpsoft-1", QUESTION_TYPE="NB"))
-    send(IP(dst=net)/UDP(sport=5355, dport=5355)/LLMNRQuery(id=queryid, qr=0, opcode=0, qdcount=1, qd=DNSQR(qname='shareddocs',qtype='A')))
+    try:
+        send(IP(dst=net)/UDP(sport=137, dport="netbios_ns")/NBNSQueryRequest(SUFFIX="file server service",QUESTION_NAME="corpsoft-1", QUESTION_TYPE="NB"))
+        send(IP(dst=net)/UDP(sport=5355, dport=5355)/LLMNRQuery(id=queryid, qr=0, opcode=0, qdcount=1, qd=DNSQR(qname='shareddocs',qtype='A')))
+    except PermissionError as perr:
+        print('Cannot send packet, check you permissions: {info}'.format(info=perr))
 
 # Running non-stop, waiting for keyboard interrupt
 try:

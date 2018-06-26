@@ -8,5 +8,10 @@ phishpackets:
 sniffingconf:
     localaddr: "10.0.7.5"
     filter: "udp and port 137 or port 5355 and not src host 10.0.7.5"
+phishcredentials:
+    user: "Rob"
+    password: "RobIsAwesomeBecauseHeUsesPassphrases!"
+    workstation: "ROB-PC"
+    domain: "ALLSAFE"
 webhook: "https://hooks.slack.com/services/XXXXXXXXXXXXXXX"
 logfile: "interceptor.log"

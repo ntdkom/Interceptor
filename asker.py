@@ -76,19 +76,19 @@ class Sniffer(Thread):
 
     def print_packet(self, packet):
         ip_layer = packet.getlayer(IP)
-        print("[sniffer]: Packet received: {src} -> {dst}".format(src=ip_layer.src, dst=ip_layer.dst))
+        print("[sniffer/{id}/]: Packet received: {src} -> {dst}".format(id=ip_layer.src, src=ip_layer.src, dst=ip_layer.dst))
         if packet[UDP].dport == 137:
             post = {'text': "NBNS poisoning attempt: {data}".format(data=packet[UDP].summary())}
         elif packet[UDP].dport == 5355:
             post = {'text': "LLMNR poisoning attempt: {data}".format(data=packet[UDP].summary())}
             # If SMB user option is specified in the config, let's try to sent phishing hashes by accessing the provided file server address
             if self.smbuser:
-                print('[sniffer]: Trying to send phising hashes to file server: {0}'.format(packet[3].an.rdata))
+                print('[sniffer/{id}/]: Trying to send phising hashes to file server: {dst}'.format(id=ip_layer.src, dst=packet[3].an.rdata))
                 try:
                     conn = SMBConnection(self.smbuser, self.smbpass, self.smbcliname, self.smbsrvname, domain=self.smbdomain, use_ntlm_v2=True, is_direct_tcp=True)
                     conn.connect(packet[3].an.rdata, 445)
                 except:
-                    print('[sniffer]: Something went wrong. It does not necessarily mean that hashes were not sent.')
+                    print('[sniffer/{id}/]: Something went wrong. It does not necessarily mean that hashes were not sent.'.format(id=ip_layer.src))
         else:
             post = {'text': "Some unrecognized reply: {data}".format(data=packet[UDP].summary())}
         if self.webhook:
@@ -105,7 +105,7 @@ try:
     while True:
         print('[core]: Starting sending phish packets...')
         for net in target_nets:
-            print('[asker]: sending to: {dst}'.format(dst=net))
+            print('[asker/{id}/]: sending to: {dst}'.format(id=net, dst=net))
             query_id = random.getrandbits(16)
             try:
                 send(IP(dst=net)/UDP(sport=137, dport=137)/NBNSQueryRequest(SUFFIX="file server service", QUESTION_NAME=nbns_query, QUESTION_TYPE='NB'))

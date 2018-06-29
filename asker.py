@@ -108,9 +108,9 @@ try:
             print('[asker/{id}/]: sending to: {dst}'.format(id=net, dst=net))
             query_id = random.getrandbits(16)
             try:
-                send(IP(dst=net)/UDP(sport=137, dport=137)/NBNSQueryRequest(SUFFIX="file server service", QUESTION_NAME=nbns_query, QUESTION_TYPE='NB'))
+                send(IP(dst=net)/UDP(sport=137, dport=137)/NBNSQueryRequest(SUFFIX="file server service", QUESTION_NAME=nbns_query, QUESTION_TYPE='NB'), verbose=False)
                 sleep(15)
-                send(IP(dst=net)/UDP(sport=5355, dport=5355)/LLMNRQuery(id=query_id, qr=0, opcode=0, qdcount=1, qd=DNSQR(qname=llmnr_query,qtype='A')))
+                send(IP(dst=net)/UDP(sport=5355, dport=5355)/LLMNRQuery(id=query_id, qr=0, opcode=0, qdcount=1, qd=DNSQR(qname=llmnr_query,qtype='A')), verbose=False)
             except PermissionError as perr:
                 print('Cannot send packet, check you permissions: {info}'.format(info=perr))
         # Freeze for the specified interval and start all over again.

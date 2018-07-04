@@ -1,6 +1,6 @@
 # Interceptor
 
-Use this Python script to spot the attacker in your network. The attacker who uses the wide spread tools: Responder, Inveigh and the alike.
+Use this Python script to spot the attacker in your network.  The attacker who uses the wide spread tools: Responder, Inveigh and the alike.
 
 ## Attack
 

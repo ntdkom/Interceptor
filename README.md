@@ -1,11 +1,13 @@
 # Interceptor
 
-Use this Python script to spot the attacker in your network.\The attacker who uses the wide spread tools: Responder, Inveigh and the alike.
+Use this Python script to spot the attacker in your network.  
+The attacker who uses the wide spread tools: Responder, Inveigh and the alike.
 
 ## Attack
 
 There is a well-known technique which abuses the Microsoft Windows' single-sign-on functionality in order to
-capture the user's Net-NTLMv1/v2 (sometimes named NTLMv1/v2) hashes. Those hashes can further be used to attack the other systems
+capture the user's Net-NTLMv1/v2 (sometimes named NTLMv1/v2) hashes.
+Those hashes can further be used to attack the other systems
 on the network.
 
 There are hacking tools that use this technique, the most popular one is the Responder. Windows based analog is the Inveigh.
